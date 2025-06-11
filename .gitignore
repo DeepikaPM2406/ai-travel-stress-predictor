@@ -1,0 +1,9 @@
+# Secrets and tokens
+utils/token.pickle
+utils/credentials.json
+*.pickle
+*.json
+.env
+__pycache__/
+*.pyc
+.DS_Store
