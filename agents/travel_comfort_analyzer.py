@@ -97,6 +97,41 @@ def calculate_trip_duration_from_dates(start_date, end_date):
     duration = (end_date - start_date).days
     return max(1, duration)  # Minimum 1 day
 
+    # Add this to the TOP of your display_travel_comfort_analyzer() function
+# Right after the CSS styling section
+
+def add_google_analytics():
+    """Add Google Analytics 4 tracking to the app"""
+    # Replace 'G-XXXXXXXXXX' with your actual Measurement ID
+    GA_MEASUREMENT_ID = "G-FK6TVDFQ82"  # Get this from Google Analytics
+    
+    # Google Analytics 4 tracking code
+    ga_code = f"""
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){{dataLayer.push(arguments);}}
+      gtag('js', new Date());
+      gtag('config', '{GA_MEASUREMENT_ID}');
+    </script>
+    """
+    
+    # Inject the tracking code
+    st.markdown(ga_code, unsafe_allow_html=True)
+
+# Call this function right after your CSS styling
+def display_travel_comfort_analyzer():
+    # Your existing CSS code here...
+    st.markdown("""<style>...</style>""", unsafe_allow_html=True)
+    
+    # Add Google Analytics tracking
+    add_google_analytics()
+    
+    # Rest of your app code...
+    st.markdown('<h1 class="gobabygo-header">🍼 GoBabyGo: Smart Travel Companion</h1>', unsafe_allow_html=True)
+    # ... rest of your code
+
 def display_travel_comfort_analyzer():
     """GoBabyGo main interface for smart family travel planning"""
     
