@@ -9,6 +9,7 @@ import streamlit as st
 import time
 import pandas as pd
 import datetime
+import streamlit.components.v1 as components
 from typing import List, Dict, Optional, Tuple
 from dataclasses import dataclass
 
@@ -100,25 +101,121 @@ def calculate_trip_duration_from_dates(start_date, end_date):
     # Add this to the TOP of your display_travel_comfort_analyzer() function
 # Right after the CSS styling section
 
+# REPLACE YOUR ENTIRE add_google_analytics() function with this:
+
 def add_google_analytics():
-    """Add Google Analytics 4 tracking to the app"""
-    # Replace 'G-XXXXXXXXXX' with your actual Measurement ID
-    GA_MEASUREMENT_ID = "G-FK6TVDFQ82"  # Get this from Google Analytics
+    """Fixed GA4 implementation that works with Streamlit"""
     
-    # Google Analytics 4 tracking code
-    ga_code = f"""
-    <!-- Google tag (gtag.js) -->
+    # Your exact Measurement ID
+    GA_MEASUREMENT_ID = "G-FK6TVDFQ82"
+    
+    # Enhanced GA4 setup with proper Streamlit configuration
+    ga4_code = f"""
+    <!-- Google tag (gtag.js) - Streamlit Optimized -->
     <script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){{dataLayer.push(arguments);}}
       gtag('js', new Date());
-      gtag('config', '{GA_MEASUREMENT_ID}');
+
+      // Configure GA4 with your exact domain
+      gtag('config', '{GA_MEASUREMENT_ID}', {{
+        page_title: 'GoBabyGo Travel Companion',
+        page_location: 'https://gobabygo-travel-companion.streamlit.app/',
+        send_page_view: true,
+        // Streamlit-specific settings
+        custom_map: {{'custom_parameter_1': 'dimension1'}},
+        allow_google_signals: false,
+        allow_ad_personalization_signals: false
+      }});
+
+      // Debug logging
+      console.log('🚀 GA4 Loaded - ID: {GA_MEASUREMENT_ID}');
+      console.log('📍 Tracking URL: https://gobabygo-travel-companion.streamlit.app/');
+      
+      // Send immediate test event to activate data collection
+      gtag('event', 'page_view', {{
+        page_title: 'GoBabyGo Travel Companion',
+        page_location: 'https://gobabygo-travel-companion.streamlit.app/',
+        send_to: '{GA_MEASUREMENT_ID}'
+      }});
+      
+      // Send app loaded event
+      gtag('event', 'app_loaded', {{
+        event_category: 'engagement',
+        event_label: 'streamlit_app',
+        value: 1,
+        send_to: '{GA_MEASUREMENT_ID}'
+      }});
+
+      // Verification after 2 seconds
+      setTimeout(function() {{
+        if (typeof gtag === 'function') {{
+          console.log('✅ GA4 Status: ACTIVE');
+          gtag('event', 'analytics_verified', {{
+            event_category: 'system',
+            event_label: 'ga4_working',
+            send_to: '{GA_MEASUREMENT_ID}'
+          }});
+        }} else {{
+          console.log('❌ GA4 Status: FAILED');
+        }}
+      }}, 2000);
     </script>
     """
     
-    # Inject the tracking code
-    st.markdown(ga_code, unsafe_allow_html=True)
+    # Use components.html for reliable script loading
+    try:
+        import streamlit.components.v1 as components
+        components.html(ga4_code, height=0)
+    except:
+        # Fallback to markdown method
+        st.markdown(ga4_code, unsafe_allow_html=True)
+
+
+        # ADD these functions right after your add_google_analytics() function:
+
+def track_destination_selection(destination_name, destination_type):
+    """Track when users select destinations"""
+    tracking_script = f"""
+    <script>
+    setTimeout(function() {{
+        if (typeof gtag === 'function') {{
+            gtag('event', 'destination_selected', {{
+                event_category: 'travel_planning',
+                event_label: '{destination_name}',
+                destination_type: '{destination_type}',
+                value: 1,
+                send_to: 'G-FK6TVDFQ82'
+            }});
+            console.log('📍 Tracked: Destination - {destination_name}');
+        }}
+    }}, 1000);
+    </script>
+    """
+    st.markdown(tracking_script, unsafe_allow_html=True)
+
+def track_comfort_analysis(comfort_score, baby_age, destination):
+    """Track completed comfort analyses"""
+    tracking_script = f"""
+    <script>
+    setTimeout(function() {{
+        if (typeof gtag === 'function') {{
+            gtag('event', 'comfort_analysis_completed', {{
+                event_category: 'conversion',
+                event_label: 'analysis_complete',
+                comfort_score: {comfort_score},
+                baby_age: {baby_age},
+                destination: '{destination}',
+                value: {comfort_score},
+                send_to: 'G-FK6TVDFQ82'
+            }});
+            console.log('✅ Tracked: Analysis Complete - Score: {comfort_score}');
+        }}
+    }}, 1000);
+    </script>
+    """
+    st.markdown(tracking_script, unsafe_allow_html=True)
 
 # Call this function right after your CSS styling
 def display_travel_comfort_analyzer():
